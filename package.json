@@ -18,6 +18,7 @@
   "scripts": {
     "start": "cd dist && node index.js",
     "build": "rimraf dist && tsc",
+    "build:prod": "tsc",
     "sync": "slash-up sync",
     "sync:dev": "slash-up sync -e development",
     "dev": "devScript",
