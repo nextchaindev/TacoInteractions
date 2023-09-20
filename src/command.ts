@@ -4,6 +4,7 @@ import fuzzy from 'fuzzy';
 import { AutocompleteContext, CommandContext, SlashCommand } from 'slash-create';
 
 import {
+  getActiveGuildThreads,
   getBoardTextLabel,
   getCardTextLabel,
   getLabelTextLabel,
@@ -53,6 +54,16 @@ export default abstract class Command extends SlashCommand {
       this.onAutocompleteError(e, ctx);
       return [];
     }
+  }
+
+  async autocompleteThreads(ctx: AutocompleteContext | any, channel_id: string) {
+    const guildID = ctx.data.guild_id;
+    const allActiveThreads: any = await getActiveGuildThreads(guildID);
+    const activeChannelThreads = allActiveThreads.threads.filter((thread) => thread.parent_id === channel_id);
+    return activeChannelThreads.map((thread: any) => ({
+      name: thread.name,
+      value: thread.id
+    }));
   }
 
   async autocompleteLists(ctx: AutocompleteContext, opts: AutocompleteItemOptions<TrelloList> = {}) {

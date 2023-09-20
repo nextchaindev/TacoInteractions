@@ -44,7 +44,8 @@ export const action: ActionFunction = {
         filters: DEFAULT.toString(),
         locale,
         webhookID: discordWebhook.id,
-        webhookToken: discordWebhook.token
+        webhookToken: discordWebhook.token,
+        threadID: action.threadID
       }
     });
 

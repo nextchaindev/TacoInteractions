@@ -243,6 +243,18 @@ export async function createDiscordWebhook(guildID: string, channelID: string, b
   return response.data;
 }
 
+export async function getActiveGuildThreads(guildID: string): Promise<DiscordWebhook> {
+  const response = await axios.get(`https://discord.com/api/v10/guilds/${guildID}/threads/active`, {
+    headers: {
+      Authorization: `Bot ${process.env.DISCORD_BOT_TOKEN}`,
+      'Content-Type': 'application/json',
+      'User-Agent': `TacoInteractions (https://github.com/trello-talk/TacoInteractions, ${VERSION}) Node.js/${process.version}`
+    }
+  });
+
+  return response.data;
+}
+
 export async function postToWebhook(webhook: DiscordWebhook, body: any): Promise<any> {
   const response = await axios.post(`https://discord.com/api/v9/webhooks/${webhook.id}/${webhook.token}`, body, {
     headers: {

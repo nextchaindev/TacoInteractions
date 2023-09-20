@@ -98,6 +98,13 @@ export default class WebhookCommand extends SlashCommand {
             },
             {
               type: CommandOptionType.STRING,
+              name: 'thread',
+              description: 'The channel to post updates to.',
+              required: true,
+              autocomplete: true
+            },
+            {
+              type: CommandOptionType.STRING,
               name: 'name',
               description: 'The name of the webhook to use.'
             }
@@ -322,7 +329,10 @@ export default class WebhookCommand extends SlashCommand {
   }
 
   async autocomplete(ctx: AutocompleteContext) {
-    if (ctx.subcommands[0] === 'add') return this.autocompleteBoards(ctx, { query: ctx.options[ctx.subcommands[0]].board });
+    if (ctx.subcommands[0] === 'add') {
+      if (ctx.focused === 'board') return this.autocompleteBoards(ctx, { query: ctx.options[ctx.subcommands[0]].board });
+      if (ctx.focused === 'thread') return this.autocompleteThreads(ctx, ctx.options[ctx.subcommands[0]].channel);
+    }
     if (ctx.subcommands[0] === 'set') {
       if (ctx.focused === 'locale') return this.autocompleteLocales(ctx, ctx.options.set[ctx.subcommands[1]].locale);
       return this.autocompleteWebhooks(ctx, ctx.options.set[ctx.subcommands[1]].webhook);
@@ -583,7 +593,8 @@ export default class WebhookCommand extends SlashCommand {
           board,
           name: ctx.options.add.name,
           webhooks: discordWebhooks,
-          channelID: ctx.options.add.channel
+          channelID: ctx.options.add.channel,
+          threadID: ctx.options.add.thread || ''
         });
 
         return {
@@ -593,7 +604,7 @@ export default class WebhookCommand extends SlashCommand {
               type: ComponentType.ACTION_ROW,
               components: [
                 {
-                  type: ComponentType.SELECT,
+                  type: ComponentType.STRING_SELECT,
                   placeholder: t('webhook.select_webhook_placeholder'),
                   options: discordWebhooks
                     .filter((dwh) => dwh.token)
