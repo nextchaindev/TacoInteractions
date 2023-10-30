@@ -558,127 +558,170 @@ export default class WebhookCommand extends SlashCommand {
 
         // If there are no webhooks w/ tokens, we can create a new one
         // if (!discordWebhooks.some((dwh) => dwh.token)) {
-        if (true) {
-          let discordWebhook: DiscordWebhook;
-          try {
-            discordWebhook = await createDiscordWebhook(
-              ctx.guildID,
-              ctx.options.add.channel,
-              {
-                name:
-                  board.name.toLowerCase() === 'clyde'
-                    ? t('webhook.new_wh_name')
-                    : truncate(ctx.options.add.name || board.name, 32)
-              },
-              `Requested by ${
-                ctx.user.discriminator === '0' ? ctx.user.username : `${ctx.user.username}#${ctx.user.discriminator}`
-              } (${ctx.user.id})`
-            );
-          } catch (e) {
-            logger.warn(`Couldn't create a Discord Webhook (${ctx.guildID}, ${ctx.options.add.channel})`, e);
-            return t('webhook.dwh_fail_create');
-          }
+        // if (true) {
+        //   let discordWebhook: DiscordWebhook;
+        //   try {
+        //     discordWebhook = await createDiscordWebhook(
+        //       ctx.guildID,
+        //       ctx.options.add.channel,
+        //       {
+        //         name:
+        //           board.name.toLowerCase() === 'clyde'
+        //             ? t('webhook.new_wh_name')
+        //             : truncate(ctx.options.add.name || board.name, 32)
+        //       },
+        //       `Requested by ${
+        //         ctx.user.discriminator === '0' ? ctx.user.username : `${ctx.user.username}#${ctx.user.discriminator}`
+        //       } (${ctx.user.id})`
+        //     );
+        //   } catch (e) {
+        //     logger.warn(`Couldn't create a Discord Webhook (${ctx.guildID}, ${ctx.options.add.channel})`, e);
+        //     return t('webhook.dwh_fail_create');
+        //   }
 
-          const callbackURL = process.env.WEBHOOK_BASE_URL + userData.trelloID;
-          const trelloWebhooks = await trello.getWebhooks();
-          let trelloWebhook = trelloWebhooks.data.find(
-            (twh) => twh.idModel === board.id && twh.callbackURL === callbackURL
-          );
-          if (!trelloWebhook) trelloWebhook = await trello.addWebhook(board.id, { callbackURL });
+        //   await postToWebhook(discordWebhook, {
+        //     embeds: [
+        //       {
+        //         type: 'rich',
+        //         title: t('webhook.add_wh_title'),
+        //         description: t('webhook.add_wh_content', {
+        //           name: truncate(board.name, 1000)
+        //         }),
+        //         thumbnail: { url: 'https://tacobot.app/logo_happy.png' },
+        //         timestamp: new Date().toISOString(),
+        //         footer: {
+        //           icon_url: 'https://tacobot.app/logo_happy.png',
+        //           text: 'tacobot.app'
+        //         }
+        //       }
+        //     ]
+        //   });
 
-          await prisma.webhook.create({
-            data: {
-              name: truncate(ctx.options.add.name || board.name, 100),
-              memberID: userData.trelloID,
-              modelID: board.id,
-              trelloWebhookID: trelloWebhook.id,
-              guildID: ctx.guildID,
-              filters: DEFAULT.toString(),
-              locale,
-              webhookID: discordWebhook.id,
-              webhookToken: discordWebhook.token
-            }
-          });
-
-          await postToWebhook(discordWebhook, {
-            embeds: [
-              {
-                type: 'rich',
-                title: t('webhook.add_wh_title'),
-                description: t('webhook.add_wh_content', {
-                  name: truncate(board.name, 1000)
-                }),
-                thumbnail: { url: 'https://tacobot.app/logo_happy.png' },
-                timestamp: new Date().toISOString(),
-                footer: {
-                  icon_url: 'https://tacobot.app/logo_happy.png',
-                  text: 'tacobot.app'
-                }
-              }
-            ]
-          });
-
-          return t('webhook.add_done', { board: truncate(board.name, 32) });
-        }
+        //   return t('webhook.add_done', { board: truncate(board.name, 32) });
+        // }
 
         // If there are webhooks w/ tokens, we need to ask the user to choose one
         const limited = discordWebhooks.length >= 10;
 
+        let discordWebhook: DiscordWebhook;
+        try {
+          discordWebhook = await createDiscordWebhook(
+            ctx.guildID,
+            ctx.options.add.channel,
+            {
+              name:
+                board.name.toLowerCase() === 'clyde'
+                  ? t('webhook.new_wh_name')
+                  : truncate(ctx.options.add.name || board.name, 32)
+            },
+            `Requested by ${
+              ctx.user.discriminator === '0' ? ctx.user.username : `${ctx.user.username}#${ctx.user.discriminator}`
+            } (${ctx.user.id})`
+          );
+        } catch (e) {
+          logger.warn(`Couldn't create a Discord Webhook (${ctx.guildID}, ${ctx.options.add.channel})`, e);
+          return t('webhook.dwh_fail_create');
+        }
+
+        const callbackURL = process.env.WEBHOOK_BASE_URL + userData.trelloID;
+        const trelloWebhooks = await trello.getWebhooks();
+        let trelloWebhook = trelloWebhooks.data.find(
+          (twh) => twh.idModel === board.id && twh.callbackURL === callbackURL
+        );
+        if (!trelloWebhook) trelloWebhook = await trello.addWebhook(board.id, { callbackURL });
+
+        console.log('trelloWebhook', ctx.options.add);
+
+        await prisma.webhook.create({
+          data: {
+            name: truncate(ctx.options.add.name || board.name, 100),
+            memberID: userData.trelloID,
+            modelID: board.id,
+            trelloWebhookID: trelloWebhook.id,
+            guildID: ctx.guildID,
+            filters: DEFAULT.toString(),
+            locale,
+            webhookID: discordWebhook.id,
+            webhookToken: discordWebhook.token,
+            threadID: ctx.options.add.thread
+          }
+        });
+
         const action = await createAction(ActionType.CREATE_WEBHOOK, ctx.user.id, {
           board,
           name: ctx.options.add.name,
-          webhooks: discordWebhooks,
+          webhooks: discordWebhook,
           channelID: ctx.options.add.channel,
-          threadID: ctx.options.add.thread || ''
+          threadID: ctx.options.add.thread
         });
 
-        return {
-          content: t(limited ? 'webhook.select_webhook_max' : 'webhook.select_webhook'),
-          components: [
+        await postToWebhook(discordWebhook, {
+          embeds: [
             {
-              type: ComponentType.ACTION_ROW,
-              components: [
-                {
-                  type: ComponentType.STRING_SELECT,
-                  placeholder: t('webhook.select_webhook_placeholder'),
-                  options: discordWebhooks
-                    .filter((dwh) => dwh.token)
-                    .map((dwh) => ({
-                      label: truncate(dwh.name, 100),
-                      description: t('webhook.created_by', {
-                        user:
-                          dwh.user.discriminator === '0'
-                            ? dwh.user.username
-                            : `${dwh.user.username}#${dwh.user.discriminator}`
-                      }),
-                      value: dwh.id
-                    })),
-                  custom_id: `action:${action}`,
-                  min_values: 1,
-                  max_values: 1
-                }
-              ]
-            },
-            {
-              type: ComponentType.ACTION_ROW,
-              components: [
-                {
-                  type: ComponentType.BUTTON,
-                  style: ButtonStyle.SUCCESS,
-                  label: t('webhook.create_new'),
-                  custom_id: limited ? 'none' : `action:${action}:`,
-                  disabled: limited
-                },
-                {
-                  type: ComponentType.BUTTON,
-                  style: ButtonStyle.SECONDARY,
-                  label: t('common.cancel'),
-                  custom_id: 'delete'
-                }
-              ]
+              type: 'rich',
+              title: t('webhook.add_wh_title'),
+              description: t('webhook.add_wh_content', {
+                name: truncate(board.name, 1000)
+              }),
+              thumbnail: { url: 'https://tacobot.app/logo_happy.png' },
+              timestamp: new Date().toISOString(),
+              footer: {
+                icon_url: 'https://tacobot.app/logo_happy.png',
+                text: 'tacobot.app'
+              }
             }
           ]
-        };
+        });
+
+        return t('webhook.add_done', { board: truncate(board.name, 32) });
+
+        // return {
+        //   content: t(limited ? 'webhook.select_webhook_max' : 'webhook.select_webhook'),
+        //   components: [
+        //     {
+        //       type: ComponentType.ACTION_ROW,
+        //       components: [
+        //         {
+        //           type: ComponentType.STRING_SELECT,
+        //           placeholder: t('webhook.select_webhook_placeholder'),
+        //           options: discordWebhooks
+        //             .filter((dwh) => dwh.token)
+        //             .map((dwh) => ({
+        //               label: truncate(dwh.name, 100),
+        //               description: t('webhook.created_by', {
+        //                 user:
+        //                   dwh.user.discriminator === '0'
+        //                     ? dwh.user.username
+        //                     : `${dwh.user.username}#${dwh.user.discriminator}`
+        //               }),
+        //               value: dwh.id
+        //             })),
+        //           custom_id: `action:${action}`,
+        //           min_values: 1,
+        //           max_values: 1
+        //         }
+        //       ]
+        //     },
+        //     {
+        //       type: ComponentType.ACTION_ROW,
+        //       components: [
+        //         {
+        //           type: ComponentType.BUTTON,
+        //           style: ButtonStyle.SUCCESS,
+        //           label: t('webhook.create_new'),
+        //           custom_id: limited ? 'none' : `action:${action}:`,
+        //           disabled: limited
+        //         },
+        //         {
+        //           type: ComponentType.BUTTON,
+        //           style: ButtonStyle.SECONDARY,
+        //           label: t('common.cancel'),
+        //           custom_id: 'delete'
+        //         }
+        //       ]
+        //     }
+        //   ]
+        // };
       }
       case 'set': {
         const webhook = webhooks.find((w) => String(w.id) === ctx.options.set[ctx.subcommands[1]].webhook);

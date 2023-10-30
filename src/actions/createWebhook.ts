@@ -20,9 +20,14 @@ export const action: ActionFunction = {
           ctx.guildID,
           action.channelID,
           {
-            name: action.board.name.toLowerCase() === 'clyde' ? t('webhook.new_wh_name') : truncate(action.name || action.board.name, 32)
+            name:
+              action.board.name.toLowerCase() === 'clyde'
+                ? t('webhook.new_wh_name')
+                : truncate(action.name || action.board.name, 32)
           },
-          `Requested by ${ctx.user.discriminator === '0' ? ctx.user.username : `${ctx.user.username}#${ctx.user.discriminator}`} (${ctx.user.id})`
+          `Requested by ${
+            ctx.user.discriminator === '0' ? ctx.user.username : `${ctx.user.username}#${ctx.user.discriminator}`
+          } (${ctx.user.id})`
         );
       } catch (e) {
         logger.warn(`Couldn't create a Discord Webhook (${ctx.guildID}, ${action.channelID})`, e);
@@ -31,8 +36,12 @@ export const action: ActionFunction = {
 
     const callbackURL = process.env.WEBHOOK_BASE_URL + userData.trelloID;
     const trelloWebhooks = await trello.getWebhooks();
-    let trelloWebhook = trelloWebhooks.data.find((twh) => twh.idModel === action.board.id && twh.callbackURL === callbackURL);
+    let trelloWebhook = trelloWebhooks.data.find(
+      (twh) => twh.idModel === action.board.id && twh.callbackURL === callbackURL
+    );
     if (!trelloWebhook) trelloWebhook = await trello.addWebhook(action.board.id, { callbackURL });
+
+    console.log('action', action);
 
     await prisma.webhook.create({
       data: {
@@ -46,7 +55,7 @@ export const action: ActionFunction = {
         webhookID: discordWebhook.id,
         webhookToken: discordWebhook.token,
         threadID: action.threadID
-      }
+      } as any
     });
 
     await postToWebhook(discordWebhook, {
