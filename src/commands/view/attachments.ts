@@ -1,4 +1,4 @@
-import { AutocompleteContext, CommandContext, CommandOptionType, SlashCreator } from 'slash-create';
+import { AutocompleteContext, CommandContext, CommandOptionType, SlashCreator } from 'slash-create-modify';
 
 import SlashCommand from '../../command';
 import { getData, noAuthResponse } from '../../util';
@@ -32,7 +32,8 @@ export default class AttachmentsCommand extends SlashCommand {
     if (!userData.currentBoard) return { content: t('switch.no_board_command'), ephemeral: true };
 
     const [board] = await getBoard(userData.trelloToken, userData.currentBoard, userData.trelloID);
-    if (!board.cards.find((c) => c.id === ctx.options.card || c.shortLink === ctx.options.card)) return t('query.not_found', { context: 'card' });
+    if (!board.cards.find((c) => c.id === ctx.options.card || c.shortLink === ctx.options.card))
+      return t('query.not_found', { context: 'card' });
 
     const card = await getCard(userData.trelloToken, ctx.options.card);
 

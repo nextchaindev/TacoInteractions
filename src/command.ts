@@ -1,7 +1,7 @@
 import { User } from '@prisma/client';
 import { AxiosResponse } from 'axios';
 import fuzzy from 'fuzzy';
-import { AutocompleteContext, CommandContext, SlashCommand } from 'slash-create';
+import { AutocompleteContext, CommandContext, SlashCommand } from 'slash-create-modify';
 
 import {
   getActiveGuildThreads,

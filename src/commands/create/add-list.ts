@@ -1,4 +1,4 @@
-import { CommandContext, CommandOptionType, SlashCreator } from 'slash-create';
+import { CommandContext, CommandOptionType, SlashCreator } from 'slash-create-modify';
 
 import SlashCommand from '../../command';
 import { getData, noAuthResponse, truncate } from '../../util';
@@ -27,7 +27,8 @@ export default class AddListCommand extends SlashCommand {
     if (!userData.currentBoard) return { content: t('switch.no_board_command'), ephemeral: true };
 
     const [board] = await getBoard(userData.trelloToken, userData.currentBoard, userData.trelloID);
-    if (board.lists.filter((l) => !l.closed).length >= 500 || board.lists.length >= 3000) return { content: t('addlist.limited'), ephemeral: true };
+    if (board.lists.filter((l) => !l.closed).length >= 500 || board.lists.length >= 3000)
+      return { content: t('addlist.limited'), ephemeral: true };
 
     const name = ctx.options.name.trim();
     await trello.addList(userData.currentBoard, name);

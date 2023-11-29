@@ -11,7 +11,7 @@ import {
   InteractionResponseFlags,
   MessageInteractionContext,
   MessageOptions
-} from 'slash-create';
+} from 'slash-create-modify';
 
 import { VERSION } from './constants';
 import { createT } from './locale';

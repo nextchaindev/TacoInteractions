@@ -1,4 +1,4 @@
-import { CommandContext, CommandOptionType, SlashCreator } from 'slash-create';
+import { CommandContext, CommandOptionType, SlashCreator } from 'slash-create-modify';
 
 import SlashCommand from '../../command';
 import { getData, noAuthResponse, splitMessage, truncate } from '../../util';
@@ -84,9 +84,10 @@ export default class BoardsCommand extends SlashCommand {
           boards
             .map(
               (board) =>
-                `${board.closed ? '🗃️ ' : ''}${board.subscribed ? '🔔 ' : ''}${board.starred ? '⭐ ' : ''} [${truncate(board.name, 50)}](${
-                  board.shortUrl
-                }?utm_source=tacobot.app)`
+                `${board.closed ? '🗃️ ' : ''}${board.subscribed ? '🔔 ' : ''}${board.starred ? '⭐ ' : ''} [${truncate(
+                  board.name,
+                  50
+                )}](${board.shortUrl}?utm_source=tacobot.app)`
             )
             .join('\n')
         )

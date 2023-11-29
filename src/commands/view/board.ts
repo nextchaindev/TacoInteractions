@@ -1,4 +1,11 @@
-import { AutocompleteContext, ButtonStyle, CommandContext, CommandOptionType, ComponentType, SlashCreator } from 'slash-create';
+import {
+  AutocompleteContext,
+  ButtonStyle,
+  CommandContext,
+  CommandOptionType,
+  ComponentType,
+  SlashCreator
+} from 'slash-create-modify';
 
 import SlashCommand from '../../command';
 import { getData, noAuthResponse, stripIndentsAndNewlines, truncate } from '../../util';
@@ -30,7 +37,8 @@ export default class BoardCommand extends SlashCommand {
 
     let boardID = ctx.options.board || userData.currentBoard;
 
-    if ((!ctx.options.board || /^[a-f0-9]{24}$/.test(ctx.options.board)) && !userData.currentBoard) return t('query.not_found', { context: 'board' });
+    if ((!ctx.options.board || /^[a-f0-9]{24}$/.test(ctx.options.board)) && !userData.currentBoard)
+      return t('query.not_found', { context: 'board' });
 
     if (ctx.options.board) {
       const member = await getMember(userData.trelloToken, userData.trelloID);
@@ -42,8 +50,10 @@ export default class BoardCommand extends SlashCommand {
 
     const [board] = await getBoard(userData.trelloToken, boardID, userData.trelloID);
 
-    const boardColor = board.prefs && board.prefs.backgroundTopColor ? parseInt(board.prefs.backgroundTopColor.slice(1), 16) : 0;
-    const backgroundImg = board.prefs && board.prefs.backgroundImageScaled ? board.prefs.backgroundImageScaled.reverse()[1].url : null;
+    const boardColor =
+      board.prefs && board.prefs.backgroundTopColor ? parseInt(board.prefs.backgroundTopColor.slice(1), 16) : 0;
+    const backgroundImg =
+      board.prefs && board.prefs.backgroundImageScaled ? board.prefs.backgroundImageScaled.reverse()[1].url : null;
 
     return {
       embeds: [

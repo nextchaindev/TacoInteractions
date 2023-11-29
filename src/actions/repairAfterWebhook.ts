@@ -1,4 +1,4 @@
-import { ComponentContext } from 'slash-create';
+import { ComponentContext } from 'slash-create-modify';
 
 import { logger } from '../logger';
 import { createDiscordWebhook, getData, postToWebhook, truncate } from '../util';
@@ -18,9 +18,14 @@ export const action: ActionFunction = {
           ctx.guildID,
           action.channelID,
           {
-            name: !action.webhookName || action.webhookName.toLowerCase() === 'clyde' ? t('webhook.new_wh_name') : truncate(action.webhookName, 32)
+            name:
+              !action.webhookName || action.webhookName.toLowerCase() === 'clyde'
+                ? t('webhook.new_wh_name')
+                : truncate(action.webhookName, 32)
           },
-          `Requested by ${ctx.user.discriminator === '0' ? ctx.user.username : `${ctx.user.username}#${ctx.user.discriminator}`} (${ctx.user.id})`
+          `Requested by ${
+            ctx.user.discriminator === '0' ? ctx.user.username : `${ctx.user.username}#${ctx.user.discriminator}`
+          } (${ctx.user.id})`
         );
       } catch (e) {
         logger.warn(`Couldn't create a Discord Webhook (${ctx.guildID}, ${action.channelID})`, e);

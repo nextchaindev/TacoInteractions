@@ -1,6 +1,6 @@
 import { nanoid } from 'nanoid';
 import path from 'path';
-import { ComponentContext, ModalInteractionContext } from 'slash-create';
+import { ComponentContext, ModalInteractionContext } from 'slash-create-modify';
 
 import { logger } from '../logger';
 import { iterateFolder } from '.';
@@ -26,7 +26,14 @@ export enum ActionType {
   CREATE_CARD = 14
 }
 
-export type Action = RegularAction | BooleanAction | InputAction | CardCreateAction | WebhookCreateAction | WebhookEditAction | RepairWebhookAction;
+export type Action =
+  | RegularAction
+  | BooleanAction
+  | InputAction
+  | CardCreateAction
+  | WebhookCreateAction
+  | WebhookEditAction
+  | RepairWebhookAction;
 
 export interface RegularAction {
   type: ActionType;

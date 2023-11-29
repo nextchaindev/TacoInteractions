@@ -1,4 +1,4 @@
-import { ChannelType } from 'slash-create';
+import { ChannelType } from 'slash-create-modify';
 
 type TrelloPermissionLevel = 'public' | 'private' | 'org' | 'observers';
 type TrelloBackgroundBrightness = 'dark' | 'light';

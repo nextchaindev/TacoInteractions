@@ -1,4 +1,4 @@
-import { ComponentContext } from 'slash-create';
+import { ComponentContext } from 'slash-create-modify';
 
 import { getData } from '../util';
 import { ActionFunction, ActionType } from '../util/actions';
@@ -28,6 +28,7 @@ export const action: ActionFunction = {
           where: { userID: webhook.memberID }
         })
       : null;
+    console.log(trelloMember);
     try {
       if (trelloMember?.trelloToken) {
         const trello = new Trello(trelloMember.trelloToken);

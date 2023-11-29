@@ -1,4 +1,4 @@
-import { AutocompleteContext, CommandContext, CommandOptionType, SlashCreator } from 'slash-create';
+import { AutocompleteContext, CommandContext, CommandOptionType, SlashCreator } from 'slash-create-modify';
 
 import SlashCommand from '../command';
 import { getData } from '../util';
@@ -48,7 +48,8 @@ export default class ServerSettingsCommand extends SlashCommand {
   async run(ctx: CommandContext) {
     const { userData, serverData, t } = await getData(ctx);
     if (!ctx.guildID) return { content: t('interactions.no_server'), ephemeral: true };
-    if (!ctx.member!.permissions.has('MANAGE_GUILD')) return { content: t('interactions.no_admin_perms'), ephemeral: true };
+    if (!ctx.member!.permissions.has('MANAGE_GUILD'))
+      return { content: t('interactions.no_admin_perms'), ephemeral: true };
 
     switch (ctx.subcommands[0]) {
       case 'locale': {

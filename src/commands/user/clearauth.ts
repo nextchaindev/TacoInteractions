@@ -1,4 +1,4 @@
-import { ButtonStyle, CommandContext, ComponentType, SlashCreator } from 'slash-create';
+import { ButtonStyle, CommandContext, ComponentType, SlashCreator } from 'slash-create-modify';
 
 import SlashCommand from '../../command';
 import { getData } from '../../util';

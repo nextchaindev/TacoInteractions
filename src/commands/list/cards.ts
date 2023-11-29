@@ -1,4 +1,4 @@
-import { CommandContext, CommandOptionType, SlashCreator } from 'slash-create';
+import { CommandContext, CommandOptionType, SlashCreator } from 'slash-create-modify';
 
 import SlashCommand from '../../command';
 import { getData, noAuthResponse, splitMessage, truncate } from '../../util';
@@ -106,10 +106,10 @@ export default class CardsCommand extends SlashCommand {
                 `${card.closed ? '🗃️ ' : ''}${subs.cards[card.id] || card.subscribed ? '🔔 ' : ''} [${truncate(
                   card.name,
                   25
-                )}](https://trello.com/c/${card.shortLink}?utm_source=tacobot.app "${truncate(card.name, 50)}") (${truncate(
-                  board.lists.find((l) => l.id === card.idList).name,
-                  25
-                )})`
+                )}](https://trello.com/c/${card.shortLink}?utm_source=tacobot.app "${truncate(
+                  card.name,
+                  50
+                )}") (${truncate(board.lists.find((l) => l.id === card.idList).name, 25)})`
             )
             .join('\n'),
           { maxLength: 1000 }

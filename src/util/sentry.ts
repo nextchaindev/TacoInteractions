@@ -2,7 +2,7 @@ import '@sentry/tracing';
 
 import { RewriteFrames } from '@sentry/integrations';
 import * as Sentry from '@sentry/node';
-import { AutocompleteContext, CommandContext, ComponentContext, ModalInteractionContext } from 'slash-create';
+import { AutocompleteContext, CommandContext, ComponentContext, ModalInteractionContext } from 'slash-create-modify';
 
 import { logger } from '../logger';
 import { VERSION } from './constants';
@@ -21,7 +21,12 @@ Sentry.init({
   tracesSampleRate: process.env.SENTRY_SAMPLE_RATE ? parseFloat(process.env.SENTRY_SAMPLE_RATE) : 1.0
 });
 
-export function reportErrorFromCommand(ctx: CommandContext | AutocompleteContext, error: any, commandName: string, type?: string) {
+export function reportErrorFromCommand(
+  ctx: CommandContext | AutocompleteContext,
+  error: any,
+  commandName: string,
+  type?: string
+) {
   Sentry.withScope((scope) => {
     scope.setTag('type', type || 'generic');
     if (commandName) scope.setTag('command', commandName);

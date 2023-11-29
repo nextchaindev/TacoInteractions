@@ -1,4 +1,4 @@
-import { CommandContext, CommandOptionType, SlashCreator } from 'slash-create';
+import { CommandContext, CommandOptionType, SlashCreator } from 'slash-create-modify';
 
 import SlashCommand from '../../command';
 import { getData, noAuthResponse, truncate } from '../../util';

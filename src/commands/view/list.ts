@@ -1,4 +1,4 @@
-import { AutocompleteContext, CommandContext, CommandOptionType, SlashCreator } from 'slash-create';
+import { AutocompleteContext, CommandContext, CommandOptionType, SlashCreator } from 'slash-create-modify';
 
 import SlashCommand from '../../command';
 import { getData, noAuthResponse, sortCards, splitMessage, truncate } from '../../util';
@@ -122,7 +122,13 @@ export default class ListCommand extends SlashCommand {
           title: t('list.title', { list: truncate(list.name, 100), cards: cards.length }),
           pages: splitMessage(
             cards
-              .map((card) => `${card.closed ? '🗃️ ' : ''}${subs.cards[card.id] || card.subscribed ? '🔔 ' : ''} ${truncate(card.name, 100)}`)
+              .map(
+                (card) =>
+                  `${card.closed ? '🗃️ ' : ''}${subs.cards[card.id] || card.subscribed ? '🔔 ' : ''} ${truncate(
+                    card.name,
+                    100
+                  )}`
+              )
               .join('\n')
           )
         },

@@ -1,4 +1,11 @@
-import { AutocompleteContext, ButtonStyle, CommandContext, CommandOptionType, ComponentType, SlashCreator } from 'slash-create';
+import {
+  AutocompleteContext,
+  ButtonStyle,
+  CommandContext,
+  CommandOptionType,
+  ComponentType,
+  SlashCreator
+} from 'slash-create-modify';
 
 import SlashCommand from '../../command';
 import { getData, noAuthResponse, truncate } from '../../util';

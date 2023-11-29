@@ -1,7 +1,7 @@
 import dotenv from 'dotenv';
 import fastify from 'fastify';
 import path from 'path';
-import { FastifyServer, InteractionResponseFlags, SlashCreator } from 'slash-create';
+import { FastifyServer, InteractionResponseFlags, SlashCreator } from 'slash-create-modify';
 
 import { logger } from './logger';
 import { deleteInteraction, getData } from './util';
@@ -46,7 +46,11 @@ creator.on('warn', (message) => logger.warn(message));
 creator.on('error', (error) => logger.error(error));
 creator.on('synced', () => logger.info('Commands synced!'));
 creator.on('commandRun', (command, _, ctx) => {
-  logger.info(`${ctx.user.username}#${ctx.user.discriminator} (${ctx.user.id}) ran command ${command.commandName} ${ctx.subcommands.join(' ')}`);
+  logger.info(
+    `${ctx.user.username}#${ctx.user.discriminator} (${ctx.user.id}) ran command ${
+      command.commandName
+    } ${ctx.subcommands.join(' ')}`
+  );
   onCommandRun(ctx.user.id, command.commandName);
 });
 creator.on('commandRegister', (command) => logger.log(`Registered command ${command.commandName}`));

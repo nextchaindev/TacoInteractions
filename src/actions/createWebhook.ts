@@ -1,4 +1,4 @@
-import { ComponentContext } from 'slash-create';
+import { ComponentContext } from 'slash-create-modify';
 
 import { logger } from '../logger';
 import { createDiscordWebhook, getData, noAuthResponse, postToWebhook, truncate } from '../util';

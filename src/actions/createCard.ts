@@ -1,4 +1,4 @@
-import { ButtonStyle, ComponentType, ModalInteractionContext } from 'slash-create';
+import { ButtonStyle, ComponentType, ModalInteractionContext } from 'slash-create-modify';
 
 import { getData, noAuthResponse, truncate } from '../util';
 import { ActionFunction, ActionType } from '../util/actions';

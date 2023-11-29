@@ -1,4 +1,4 @@
-import { AutocompleteContext, CommandContext, CommandOptionType, SlashCreator } from 'slash-create';
+import { AutocompleteContext, CommandContext, CommandOptionType, SlashCreator } from 'slash-create-modify';
 
 import SlashCommand from '../../command';
 import { getData, noAuthResponse, stripIndentsAndNewlines, truncate } from '../../util';
@@ -111,7 +111,8 @@ export default class EditCardCommand extends SlashCommand {
 
     const [board] = await getBoard(userData.trelloToken, userData.currentBoard, userData.trelloID);
     const cardID = ctx.options[ctx.subcommands[0]].card;
-    if (!board.cards.find((c) => c.id === cardID || c.shortLink === cardID)) return t('query.not_found', { context: 'card' });
+    if (!board.cards.find((c) => c.id === cardID || c.shortLink === cardID))
+      return t('query.not_found', { context: 'card' });
     const card = await getCard(userData.trelloToken, cardID);
 
     switch (ctx.subcommands[0]) {
@@ -157,7 +158,9 @@ export default class EditCardCommand extends SlashCommand {
             placeholder: t('edit.labels_placeholder'),
             display: board.labels.map((l) => ({
               label: truncate(l.name, 100) || '[unnamed]',
-              emoji: { id: (l.color ? LABEL_EMOJIS[l.color.split('_')[0]] : LABEL_EMOJIS.none).split(':')[2].replace('>', '') }
+              emoji: {
+                id: (l.color ? LABEL_EMOJIS[l.color.split('_')[0]] : LABEL_EMOJIS.none).split(':')[2].replace('>', '')
+              }
             }))
           },
           ctx.messageID!,

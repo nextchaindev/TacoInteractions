@@ -1,5 +1,5 @@
 import { AxiosResponse } from 'axios';
-import { SlashCreator } from 'slash-create';
+import { SlashCreator } from 'slash-create-modify';
 
 import { client } from './redis';
 import Trello from './trello';
@@ -42,7 +42,11 @@ export async function getMember(token: string, id: string): Promise<TrelloMember
   return response.data;
 }
 
-export async function updateBoardInMember(id: string, boardId: string, options: Partial<TrelloBoard>): Promise<boolean> {
+export async function updateBoardInMember(
+  id: string,
+  boardId: string,
+  options: Partial<TrelloBoard>
+): Promise<boolean> {
   const key = `trello.member:${id}`;
   const keyWhitelist = ['subscribed', 'starred', 'name', 'shortLink', 'shortUrl', 'closed'];
   const cached = await client.get(key);
@@ -94,7 +98,12 @@ export async function unstarBoard(token: string, id: string, boardID: string): P
   return true;
 }
 
-export async function getBoard(token: string, id: string, memberId: string, requireSubs = false): Promise<[TrelloBoard, TrelloBoardSubscriptions]> {
+export async function getBoard(
+  token: string,
+  id: string,
+  memberId: string,
+  requireSubs = false
+): Promise<[TrelloBoard, TrelloBoardSubscriptions]> {
   const key = `trello.board:${id}`;
   const subsKey = `trello.board.sub:${id}:${memberId}`;
   const cached = await client.get(key);
@@ -149,7 +158,13 @@ export async function uncacheWebhooks(id: string): Promise<number> {
   return await client.del(`discord.webhooks:${id}`);
 }
 
-export async function updateBoardSub(memberId: string, boardId: string, itemId: string, type: 'list' | 'card', value: boolean): Promise<boolean> {
+export async function updateBoardSub(
+  memberId: string,
+  boardId: string,
+  itemId: string,
+  type: 'list' | 'card',
+  value: boolean
+): Promise<boolean> {
   const key = `trello.board.sub:${boardId}:${memberId}`;
   const cached = await client.get(key);
   if (!cached) return false;

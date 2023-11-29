@@ -1,5 +1,5 @@
 import { oneLine } from 'common-tags';
-import { CommandContext, CommandOptionType, SlashCreator } from 'slash-create';
+import { CommandContext, CommandOptionType, SlashCreator } from 'slash-create-modify';
 
 import SlashCommand from '../../command';
 import { getData, noAuthResponse, splitMessage, truncate } from '../../util';

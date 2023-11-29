@@ -1,4 +1,4 @@
-import { ComponentContext } from 'slash-create';
+import { ComponentContext } from 'slash-create-modify';
 import { inspect } from 'util';
 
 import { ActionFunction, ActionType } from '../util/actions';
