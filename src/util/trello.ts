@@ -1,4 +1,5 @@
 import axios, { AxiosRequestConfig } from 'axios';
+import axiosRetry from 'axios-retry';
 
 import { VERSION } from './constants';
 import { onRequestSent } from './influx';
@@ -6,6 +7,18 @@ import { onRequestSent } from './influx';
 export const BASE_URL = 'https://api.trello.com/1';
 
 type RequestConfig = AxiosRequestConfig<any> & { isForm?: true };
+
+axiosRetry(axios, {
+  retries: 5,
+  retryDelay: (retryCount) => {
+    console.log(`retry attempt: ${retryCount}`);
+    return retryCount * 2000;
+  },
+  onRetry: (error, config) => {
+    console.log(`retry attempt: ${error}`);
+    console.log(`retry attempt: ${config}`);
+  }
+});
 
 export default class Trello {
   token: string;
@@ -38,7 +51,9 @@ export default class Trello {
     }
 
     // User Agent
-    options.headers['User-Agent'] = `TacoInteractions (https://github.com/trello-talk/TacoInteractions, ${VERSION}) Node.js/${process.version}`;
+    options.headers[
+      'User-Agent'
+    ] = `TacoInteractions (https://github.com/trello-talk/TacoInteractions, ${VERSION}) Node.js/${process.version}`;
 
     const response = await axios(options);
     return response;
