@@ -3,7 +3,14 @@ import { stripIndentTransformer, TemplateTag } from 'common-tags';
 import { promises as fs } from 'fs';
 import i18next, { TFunction } from 'i18next';
 import path from 'path';
-import { ButtonStyle, ComponentContext, ComponentType, InteractionResponseFlags, MessageInteractionContext, MessageOptions } from 'slash-create';
+import {
+  ButtonStyle,
+  ComponentContext,
+  ComponentType,
+  InteractionResponseFlags,
+  MessageInteractionContext,
+  MessageOptions
+} from 'slash-create';
 
 import { VERSION } from './constants';
 import { createT } from './locale';
@@ -85,7 +92,11 @@ export function flattenObject(data: any) {
   return result;
 }
 
-export async function iterateFolder(folderPath: string, callback: (filePath: string) => void | Promise<void>, extension = '.js') {
+export async function iterateFolder(
+  folderPath: string,
+  callback: (filePath: string) => void | Promise<void>,
+  extension = '.js'
+) {
   const files = await fs.readdir(folderPath);
   await Promise.all(
     files.map(async (file) => {
@@ -125,7 +136,10 @@ export interface SplitOptions {
  * @param string text Content to split
  * @param options Options controlling the behavior of the split
  */
-export function splitMessage(text: string, { maxLength = 2000, char = '\n', prepend = '', append = '' }: SplitOptions = {}) {
+export function splitMessage(
+  text: string,
+  { maxLength = 2000, char = '\n', prepend = '', append = '' }: SplitOptions = {}
+) {
   if (text.length <= maxLength) return [text];
   const splitText = text.split(char);
   if (splitText.some((chunk) => chunk.length > maxLength)) throw new RangeError('SPLIT_MAX_LEN');
@@ -167,7 +181,8 @@ export function isElevated(user: string) {
 }
 
 export async function deleteInteraction(ctx: ComponentContext, t: TFunction) {
-  if (ctx.message.flags === InteractionResponseFlags.EPHEMERAL) await ctx.editParent(t('interactions.dismiss'), { components: [] });
+  if (ctx.message.flags === InteractionResponseFlags.EPHEMERAL)
+    await ctx.editParent(t('interactions.dismiss'), { components: [] });
   else {
     await ctx.acknowledge();
     await ctx.delete();
@@ -229,7 +244,12 @@ export function sortCards(card: TrelloCard[]) {
   });
 }
 
-export async function createDiscordWebhook(guildID: string, channelID: string, body: any, reason?: string): Promise<DiscordWebhook> {
+export async function createDiscordWebhook(
+  guildID: string,
+  channelID: string,
+  body: any,
+  reason?: string
+): Promise<DiscordWebhook> {
   await client.del(`discord.webhooks:${guildID}`);
   const response = await axios.post(`https://discord.com/api/v9/channels/${channelID}/webhooks`, body, {
     headers: {
@@ -246,6 +266,18 @@ export async function createDiscordWebhook(guildID: string, channelID: string, b
 export async function postToWebhook(webhook: DiscordWebhook, body: any): Promise<any> {
   const response = await axios.post(`https://discord.com/api/v9/webhooks/${webhook.id}/${webhook.token}`, body, {
     headers: {
+      'Content-Type': 'application/json',
+      'User-Agent': `TacoInteractions (https://github.com/trello-talk/TacoInteractions, ${VERSION}) Node.js/${process.version}`
+    }
+  });
+
+  return response.data;
+}
+
+export async function getActiveGuildThreads(guildID: string): Promise<DiscordWebhook> {
+  const response = await axios.get(`https://discord.com/api/v10/guilds/${guildID}/threads/active`, {
+    headers: {
+      Authorization: `Bot ${process.env.DISCORD_BOT_TOKEN}`,
       'Content-Type': 'application/json',
       'User-Agent': `TacoInteractions (https://github.com/trello-talk/TacoInteractions, ${VERSION}) Node.js/${process.version}`
     }

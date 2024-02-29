@@ -4,6 +4,7 @@ import fuzzy from 'fuzzy';
 import { AutocompleteContext, CommandContext, SlashCommand } from 'slash-create';
 
 import {
+  getActiveGuildThreads,
   getBoardTextLabel,
   getCardTextLabel,
   getLabelTextLabel,
@@ -55,6 +56,16 @@ export default abstract class Command extends SlashCommand {
     }
   }
 
+  async autocompleteThreads(ctx: AutocompleteContext | any, channel_id: string) {
+    const guildID = ctx.data.guild_id;
+    const allActiveThreads: any = await getActiveGuildThreads(guildID);
+    const activeChannelThreads = allActiveThreads.threads.filter((thread) => thread.parent_id === channel_id);
+    return activeChannelThreads.map((thread: any) => ({
+      name: thread.name,
+      value: thread.id
+    }));
+  }
+
   async autocompleteLists(ctx: AutocompleteContext, opts: AutocompleteItemOptions<TrelloList> = {}) {
     const query = opts.query || ctx.options.list;
     if (opts.userData === undefined) {
@@ -75,7 +86,9 @@ export default abstract class Command extends SlashCommand {
       const result = fuzzy.filter(query, lists, {
         extract: (list) => list.name
       });
-      return result.map((res) => ({ name: getListTextLabel(res.original, subs.lists[res.original.id]), value: res.original.id })).slice(0, 25);
+      return result
+        .map((res) => ({ name: getListTextLabel(res.original, subs.lists[res.original.id]), value: res.original.id }))
+        .slice(0, 25);
     } catch (e) {
       this.onAutocompleteError(e, ctx);
       return [];
@@ -97,7 +110,10 @@ export default abstract class Command extends SlashCommand {
       const [board, subs] = await getBoard(userData.trelloToken, userData.currentBoard, userData.trelloID, true);
       const cards = board.cards.filter(opts.filter || (() => true)).sort((a, b) => b.name.localeCompare(a.name));
 
-      if (!query) return cards.map((c) => ({ name: getCardTextLabel(c, board.lists, subs.cards[c.id]), value: c.id })).slice(0, 25);
+      if (!query)
+        return cards
+          .map((c) => ({ name: getCardTextLabel(c, board.lists, subs.cards[c.id]), value: c.id }))
+          .slice(0, 25);
 
       const result = fuzzy.filter(query, cards, {
         extract: (card) => card.name

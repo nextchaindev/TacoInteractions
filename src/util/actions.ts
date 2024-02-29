@@ -53,6 +53,7 @@ export interface WebhookCreateAction extends RegularAction {
   channelID: string;
   name?: string;
   webhooks: DiscordWebhook[];
+  threadID?: string;
 }
 
 export interface WebhookEditAction extends RegularAction {

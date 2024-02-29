@@ -34,6 +34,8 @@ export const action: ActionFunction = {
     let trelloWebhook = trelloWebhooks.data.find((twh) => twh.idModel === action.board.id && twh.callbackURL === callbackURL);
     if (!trelloWebhook) trelloWebhook = await trello.addWebhook(action.board.id, { callbackURL });
 
+    console.log('action', action);
+
     await prisma.webhook.create({
       data: {
         name: truncate(action.name || action.board.name, 100),
@@ -44,7 +46,8 @@ export const action: ActionFunction = {
         filters: DEFAULT.toString(),
         locale,
         webhookID: discordWebhook.id,
-        webhookToken: discordWebhook.token
+        webhookToken: discordWebhook.token,
+        threadID: action.threadID
       }
     });
 

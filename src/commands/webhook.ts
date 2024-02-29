@@ -2,11 +2,28 @@ import { User, Webhook } from '@prisma/client';
 import { AxiosResponse } from 'axios';
 import { oneLine } from 'common-tags';
 import i18next from 'i18next';
-import { AutocompleteContext, ButtonStyle, ChannelType, CommandContext, CommandOptionType, ComponentType, SlashCreator } from 'slash-create';
+import {
+  AutocompleteContext,
+  ButtonStyle,
+  ChannelType,
+  CommandContext,
+  CommandOptionType,
+  ComponentType,
+  SlashCreator
+} from 'slash-create';
 
 import SlashCommand from '../command';
 import { logger } from '../logger';
-import { createDiscordWebhook, getBoardID, getData, noAuthResponse, postToWebhook, splitMessage, stripIndentsAndNewlines, truncate } from '../util';
+import {
+  createDiscordWebhook,
+  getBoardID,
+  getData,
+  noAuthResponse,
+  postToWebhook,
+  splitMessage,
+  stripIndentsAndNewlines,
+  truncate
+} from '../util';
 import { ActionType, createAction } from '../util/actions';
 import { getBoard, getChannels, getWebhooks } from '../util/api';
 import { EMOJIS } from '../util/constants';
@@ -95,6 +112,13 @@ export default class WebhookCommand extends SlashCommand {
               description: 'The channel to post updates to.',
               required: true,
               channel_types: [ChannelType.GUILD_TEXT, ChannelType.GUILD_NEWS]
+            },
+            {
+              type: CommandOptionType.STRING,
+              name: 'thread',
+              description: 'The channel to post updates to.',
+              required: true,
+              autocomplete: true
             },
             {
               type: CommandOptionType.STRING,
@@ -322,7 +346,11 @@ export default class WebhookCommand extends SlashCommand {
   }
 
   async autocomplete(ctx: AutocompleteContext) {
-    if (ctx.subcommands[0] === 'add') return this.autocompleteBoards(ctx, { query: ctx.options[ctx.subcommands[0]].board });
+    if (ctx.subcommands[0] === 'add') {
+      if (ctx.focused === 'board')
+        return this.autocompleteBoards(ctx, { query: ctx.options[ctx.subcommands[0]].board });
+      if (ctx.focused === 'thread') return this.autocompleteThreads(ctx, ctx.options[ctx.subcommands[0]].channel);
+    }
     if (ctx.subcommands[0] === 'set') {
       if (ctx.focused === 'locale') return this.autocompleteLocales(ctx, ctx.options.set[ctx.subcommands[1]].locale);
       return this.autocompleteWebhooks(ctx, ctx.options.set[ctx.subcommands[1]].webhook);
@@ -403,7 +431,11 @@ export default class WebhookCommand extends SlashCommand {
           : null;
 
         const webhookLang = langs.find((lang) => lang.code === webhook.locale);
-        const webhookLocale = !webhook.locale ? t('webhook.not_set') : webhookLang ? `:${webhookLang.emoji}: ${webhookLang.name}` : webhook.locale;
+        const webhookLocale = !webhook.locale
+          ? t('webhook.not_set')
+          : webhookLang
+            ? `:${webhookLang.emoji}: ${webhookLang.name}`
+            : webhook.locale;
 
         return {
           embeds: [
@@ -506,19 +538,23 @@ export default class WebhookCommand extends SlashCommand {
           if ('response' in err) {
             const response = err.response as AxiosResponse;
             if (response.data === 'unauthorized permission requested') return t('webhook.board_unauthorized');
-            else if (response.data === 'invalid id' || response.data === 'Board not found') return t('webhook.board_invalid');
+            else if (response.data === 'invalid id' || response.data === 'Board not found')
+              return t('webhook.board_invalid');
           } else throw err;
         }
 
         let discordWebhooks: DiscordWebhook[];
         try {
-          discordWebhooks = (await getWebhooks(ctx.guildID, ctx.creator)).filter((dwh) => dwh.channel_id === ctx.options.add.channel);
+          discordWebhooks = (await getWebhooks(ctx.guildID, ctx.creator)).filter(
+            (dwh) => dwh.channel_id === ctx.options.add.channel
+          );
         } catch (e) {
           return t('webhook.dwh_fail');
         }
 
         // Special case: if all the webhooks are made by other apps
-        if (discordWebhooks.length >= 10 && discordWebhooks.every((dwh) => !dwh.token)) return t('webhook.no_dwh_available');
+        if (discordWebhooks.length >= 10 && discordWebhooks.every((dwh) => !dwh.token))
+          return t('webhook.no_dwh_available');
 
         // If there are no webhooks w/ tokens, we can create a new one
         if (!discordWebhooks.some((dwh) => dwh.token)) {
@@ -528,7 +564,10 @@ export default class WebhookCommand extends SlashCommand {
               ctx.guildID,
               ctx.options.add.channel,
               {
-                name: board.name.toLowerCase() === 'clyde' ? t('webhook.new_wh_name') : truncate(ctx.options.add.name || board.name, 32)
+                name:
+                  board.name.toLowerCase() === 'clyde'
+                    ? t('webhook.new_wh_name')
+                    : truncate(ctx.options.add.name || board.name, 32)
               },
               `Requested by ${ctx.user.discriminator === '0' ? ctx.user.username : `${ctx.user.username}#${ctx.user.discriminator}`} (${ctx.user.id})`
             );
@@ -539,7 +578,9 @@ export default class WebhookCommand extends SlashCommand {
 
           const callbackURL = process.env.WEBHOOK_BASE_URL + userData.trelloID;
           const trelloWebhooks = await trello.getWebhooks();
-          let trelloWebhook = trelloWebhooks.data.find((twh) => twh.idModel === board.id && twh.callbackURL === callbackURL);
+          let trelloWebhook = trelloWebhooks.data.find(
+            (twh) => twh.idModel === board.id && twh.callbackURL === callbackURL
+          );
           if (!trelloWebhook) trelloWebhook = await trello.addWebhook(board.id, { callbackURL });
 
           await prisma.webhook.create({
@@ -552,7 +593,8 @@ export default class WebhookCommand extends SlashCommand {
               filters: DEFAULT.toString(),
               locale,
               webhookID: discordWebhook.id,
-              webhookToken: discordWebhook.token
+              webhookToken: discordWebhook.token,
+              threadID: ctx.options.add.thread
             }
           });
 
@@ -583,7 +625,8 @@ export default class WebhookCommand extends SlashCommand {
           board,
           name: ctx.options.add.name,
           webhooks: discordWebhooks,
-          channelID: ctx.options.add.channel
+          channelID: ctx.options.add.channel,
+          threadID: ctx.options.add.thread
         });
 
         return {
@@ -600,7 +643,10 @@ export default class WebhookCommand extends SlashCommand {
                     .map((dwh) => ({
                       label: truncate(dwh.name, 100),
                       description: t('webhook.created_by', {
-                        user: dwh.user.discriminator === '0' ? dwh.user.username : `${dwh.user.username}#${dwh.user.discriminator}`
+                        user:
+                          dwh.user.discriminator === '0'
+                            ? dwh.user.username
+                            : `${dwh.user.username}#${dwh.user.discriminator}`
                       }),
                       value: dwh.id
                     })),
